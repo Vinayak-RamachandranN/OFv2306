@@ -106,26 +106,28 @@ void Foam::solution::read(const dictionary& dict)
         fieldRelaxDefault_ = Function1<scalar>::NewIfPresent
         (
             "default",
-            fieldRelaxDict_
+            fieldRelaxDict_,
+            &db()
         );
         if (!fieldRelaxDefault_)
         {
             fieldRelaxDefault_.reset
             (
-                new Function1Types::Constant<scalar>("default", 0)
+                new Function1Types::Constant<scalar>("default", 0, &db())
             );
         }
 
         eqnRelaxDefault_ = Function1<scalar>::NewIfPresent
         (
             "default",
-            eqnRelaxDict_
+            eqnRelaxDict_,
+            &db()
         );
         if (!eqnRelaxDefault_)
         {
             eqnRelaxDefault_.reset
             (
-                new Function1Types::Constant<scalar>("default", 0)
+                new Function1Types::Constant<scalar>("default", 0, &db())
             );
         }
 
@@ -341,7 +343,8 @@ bool Foam::solution::relaxField(const word& name, scalar& factor) const
             fieldRelaxCache_,  // cache
             name,
             fieldRelaxDict_,
-            keyType::REGEX
+            keyType::REGEX,
+            &db()
         )().value(time().timeOutputValue());
 
         return true;
@@ -368,7 +371,8 @@ bool Foam::solution::relaxEquation(const word& name, scalar& factor) const
             eqnRelaxCache_,  // cache
             name,
             eqnRelaxDict_,
-            keyType::REGEX
+            keyType::REGEX,
+            &db()
         )().value(time().timeOutputValue());
 
         return true;
