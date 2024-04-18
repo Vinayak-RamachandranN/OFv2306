@@ -6,7 +6,7 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
     Copyright (C) 2011-2017 OpenFOAM Foundation
-    Copyright (C) 2018-2023 OpenCFD Ltd.
+    Copyright (C) 2018-2024 OpenCFD Ltd.
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -821,8 +821,26 @@ void Foam::FaceCellWave<Type, TrackingData>::handleAMICyclicPatches()
             }
 
             // Merge into global storage
+
+            //const cyclicACMIPolyPatch* ACMIptr =
+            //    isA<cyclicACMIPolyPatch>(patch);
+            //const auto& mask
+            //(
+            //    ACMIptr
+            //  ? ACMIptr->mask()
+            //  : scalarField::null()
+            //);
+            const tmp<scalarField> areaFraction(patch.areaFraction());
+
             forAll(receiveInfo, i)
             {
+                //if (mask != scalarField::null() && (mask[i] < 0.5))
+                if (areaFraction && areaFraction()[i] <= 0.5)
+                {
+                    // not coupled
+                    continue;
+                }
+
                 const label meshFacei = cycPatch.start()+i;
 
                 const Type& newInfo = receiveInfo[i];
